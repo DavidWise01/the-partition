@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE PARTITION · intent kept separate from evidence, by hand</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+  :root{--sea:#0e0a1c;--panel:#150f28;--ink:#ece9f5;--peri:#7e86e6;--peri-hi:#a3a9f0;--dim:#8078a0;--line:#251d3e;
+    --gold:#d8b24a;--green:#6fbf8a;--red:#e0705a}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--sea);color:var(--ink);font-family:Spectral,Georgia,serif;line-height:1.6;
+    background:radial-gradient(ellipse 60% 40% at 50% 4%,rgba(126,134,230,.08),transparent 60%),var(--sea)}
+  .wrap{max-width:960px;margin:0 auto;padding:44px 22px 90px;position:relative}
+  .eye{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim)}
+  .eye a{color:var(--dim);text-decoration:none}.eye a:hover{color:var(--peri)}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(30px,6vw,52px);margin:8px 0 0;color:var(--peri-hi);letter-spacing:.01em}
+  .sub{max-width:70ch;font-size:16.5px;color:#c9c4dd;margin:14px 0 0;font-style:italic}
+  .byline{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase;margin:10px 0 0}
+  h2{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--peri);margin:32px 0 12px}
+  .verdictbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 15px;margin-top:8px}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.08em;padding:5px 12px;border-radius:4px;border:1px solid}
+  .chip.VALID{color:var(--green);border-color:var(--green);background:rgba(111,191,138,.08)}
+  .chip.INCOMPLETE{color:var(--peri-hi);border-color:var(--peri);background:rgba(126,134,230,.08)}
+  .chip.INVALID{color:var(--red);border-color:var(--red);background:rgba(224,112,90,.08)}
+  .counts{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim)}
+  .digest{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--gold);margin-left:auto;word-break:break-all}
+  .ledgers{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:6px}
+  @media(max-width:760px){.ledgers{grid-template-columns:1fr}}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+  .col.intent{border-top:2px solid var(--peri)}
+  .col.evidence{border-top:2px solid var(--gold)}
+  .colhead{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px;display:flex;justify-content:space-between}
+  .row{background:#0b0818;border:1px solid var(--line);border-radius:4px;padding:9px 10px;margin-bottom:9px}
+  .row .rid{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--dim);letter-spacing:.06em}
+  .row textarea,.row input{width:100%;background:#0e0a1c;border:1px solid var(--line);border-radius:3px;color:var(--ink);
+    padding:6px 8px;font-family:Spectral,serif;font-size:13.5px;margin-top:4px}
+  .row input.anchor{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--gold)}
+  .row textarea:focus,.row input:focus{outline:none;border-color:var(--peri)}
+  .st{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;padding:2px 7px;border-radius:3px;border:1px solid;display:inline-block;margin-top:6px}
+  .st.VERIFIED,.st.BACKED{color:var(--green);border-color:var(--green)}
+  .st.BROKEN,.st.UNBACKED{color:var(--red);border-color:var(--red)}
+  .st.UNVERIFIABLE{color:var(--dim);border-color:var(--dim)}
+  .recomp{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);margin-top:6px;word-break:break-all}
+  .recomp b{color:var(--gold)}.recomp .no{color:var(--red)}
+  .backs{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap}
+  .backs label{cursor:pointer;color:var(--peri-hi)}
+  .backers{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);margin-top:5px}
+  .backers b{color:var(--green)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  button{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.03em;color:var(--peri-hi);background:transparent;
+    border:1px solid var(--peri);border-radius:3px;padding:8px 12px;cursor:pointer}
+  button:hover{background:rgba(126,134,230,.1)}
+  button.red{color:var(--red);border-color:var(--red)}button.red:hover{background:rgba(224,112,90,.1)}
+  button.gold{color:var(--gold);border-color:var(--gold)}button.gold:hover{background:rgba(216,178,74,.1)}
+  .sealbox{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px}
+  .sealbox input{width:100%;background:#0b0818;border:1px solid var(--line);border-radius:3px;color:var(--ink);padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:6px 0}
+  .sealbox .out{color:var(--gold);word-break:break-all}
+  .honest{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--peri);border-radius:0 4px 4px 0;padding:16px 18px;margin-top:34px}
+  .honest h3{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--peri);margin:0 0 10px}
+  .layer{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.layer:last-child{border-bottom:0}
+  .layer .lk{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--peri);padding-top:3px}
+  .layer .lv{font-size:14px;color:#c9c4dd}.layer .lv b{color:var(--ink)}
+  footer{margin-top:40px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim);line-height:1.9;border-top:1px solid var(--line);padding-top:18px}
+  footer a{color:var(--peri)}
+  .note{max-width:70ch;font-size:14px;color:#b7b1cd;margin:14px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eye"><a href="../ud0/">◄ UD0</a> · ACI · CORE property · intent↔evidence separation</div>
+  <h1>The Partition</h1>
+  <p class="sub">A crafted claim keeps two things apart: what it <b>asserts</b> (intent) and what <b>backs</b> the assertion (evidence). Evidence carries a recomputable anchor; an assertion carries only itself. Keep them in separate columns and a bare assertion can never masquerade as proof — because it has nothing to recompute. Break it with your own hands: smuggle an intent into the evidence column and watch the partition refuse it.</p>
+  <p class="byline">ACI · a CORE property made hands-on · separation enforced by TYPE, not by columns</p>
+
+  <h2>The verdict</h2>
+  <div class="verdictbar">
+    <span class="chip VALID" id="verdict">VALID</span>
+    <span class="counts" id="counts"></span>
+    <span class="digest" id="digest"></span>
+  </div>
+
+  <div class="ledgers">
+    <div class="col intent">
+      <div class="colhead"><span>INTENT · what is asserted</span><span id="icount"></span></div>
+      <div id="intents"></div>
+      <div class="btns"><button id="addintent">+ add intent</button></div>
+    </div>
+    <div class="col evidence">
+      <div class="colhead"><span>EVIDENCE · what backs it</span><span id="ecount"></span></div>
+      <div id="evidence"></div>
+    </div>
+  </div>
+
+  <div class="sealbox">
+    <div>◈ seal a payload — recompute an anchor by hand, confirm the page is not lying (matches dlw.py / node)</div>
+    <input id="sealin" value="a fact I can point to" spellcheck="false">
+    <div>anchor = sha256(payload) = <span class="out" id="sealout"></span></div>
+    <div class="btns"><button class="gold" id="addev">+ add as VERIFIED evidence backing the first intent</button></div>
+  </div>
+
+  <div class="btns">
+    <button class="red" id="smuggle">⚠ smuggle an intent into evidence</button>
+    <button class="red" id="tamperp">tamper a payload</button>
+    <button class="red" id="tampera">tamper an anchor</button>
+    <button id="reverify">verify again (digest is stable)</button>
+    <button id="reset">reset</button>
+  </div>
+
+  <p class="note">Verdict is three-state on purpose: <b>VALID</b> (every evidence intact, every intent backed) · <b>INCOMPLETE</b> (some intent has no verifiable backing — honest, but not proven) · <b>INVALID</b> (some evidence was altered after it was sealed). An unbacked claim is <i>not</i> a tampered one; the partition keeps them distinct.</p>
+
+  <div class="honest">
+    <h3>Two layers, honestly</h3>
+    <div class="layer"><div class="lk">Real</div><div class="lv">The separation is enforced by <b>type</b>, not by two pretty columns. Only a row that carries <code>kind:'hash'</code>, a string payload, and a 64-hex anchor can back a claim, and it backs it only if <b>sha256(payload) === anchor</b> (a genuine SHA-256, the same one <a href="../the-sealing-bench/">dlw.py</a> uses — recompute any anchor in the seal box to check). An assertion has no payload to hash and no slot to hold an anchor, so it is <b>structurally rejected</b> before any backing is counted. Node-verified: 18/18 (smuggle → UNVERIFIABLE → dependent intent UNBACKED; tamper payload or anchor → BROKEN; determinism digest stable).</div></div>
+    <div class="layer"><div class="lk">Figure</div><div class="lv">The <b>“two ledgers.”</b> The columns are the picture; the type discipline is the mechanism. And a sharper caveat: <b>VERIFIED means “unaltered since it was sealed,” not “true.”</b> A false or irrelevant statement can be a perfectly VERIFIED payload — this checks <b>integrity + presence + non-masquerade</b>, never the truth of the content, and it cannot judge whether the evidence actually <i>supports</i> the intent’s meaning. As in <a href="../the-anchor/">THE ANCHOR</a>, the anchor here is a <b>local</b> commitment recomputed in-page; true external anchoring binds to something outside the file (a timestamp, a commit, a URL a third party holds), which one self-contained page can only simulate.</div></div>
+  </div>
+
+  <footer>
+    THE PARTITION · intent↔evidence separation made hands-on · the 4th of the ACI CORE benches · kin to <a href="../the-anchor/">THE ANCHOR</a> (the bind primitive) &amp; <a href="../the-sealing-bench/">THE SEALING BENCH</a> (the same SHA-256) · under <a href="../the-neural-web/">THE NEURAL WEB</a>.<br>
+    part of <a href="../ud0/">UD0 · THE BIOSPHERE</a> · ROOT0, with AVAN · CC-BY-ND-4.0 · the hash-integrity is real; the ledgers are the figure.
+  </footer>
+</div>
+<script>
+"use strict";
+(function(){
+  // ---- pure-JS SHA-256 (matches dlw.py / node crypto, byte-for-byte) ----
+  function utf8(s){ return unescape(encodeURIComponent(s)); }
+  function sha256(str){
+    var bytes=utf8(str); function rr(v,a){return (v>>>a)|(v<<(32-a));}
+    var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    var H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var l=bytes.length,bl=l*8,w2=bytes+'\x80'; while(w2.length%64!==56)w2+='\x00'; var W=[];
+    for(var i=0;i<w2.length;i++){ W[i>>2]=(W[i>>2]||0)|(w2.charCodeAt(i)<<((3-(i%4))*8)); }
+    W.push(Math.floor(bl/0x100000000)); W.push(bl|0);
+    for(var j=0;j<W.length;j+=16){ var w=W.slice(j,j+16);
+      for(var t=16;t<64;t++){ var a=w[t-15],b=w[t-2]; w[t]=(w[t-16]+(rr(a,7)^rr(a,18)^(a>>>3))+w[t-7]+(rr(b,17)^rr(b,19)^(b>>>10)))|0; }
+      var hh=H.slice();
+      for(var t2=0;t2<64;t2++){ var S1=rr(hh[4],6)^rr(hh[4],11)^rr(hh[4],25),ch=(hh[4]&hh[5])^((~hh[4])&hh[6]),t1=(hh[7]+S1+ch+K[t2]+w[t2])|0,S0=rr(hh[0],2)^rr(hh[0],13)^rr(hh[0],22),mj=(hh[0]&hh[1])^(hh[0]&hh[2])^(hh[1]&hh[2]); hh=[(t1+((S0+mj)|0))|0,hh[0],hh[1],hh[2],(hh[3]+t1)|0,hh[4],hh[5],hh[6]]; }
+      for(var k=0;k<8;k++)H[k]=(H[k]+hh[k])|0; }
+    var o=''; for(var m=0;m<8;m++)for(var n=3;n>=0;n--){ var by=(H[m]>>>(n*8))&255; o+=(by<16?'0':'')+by.toString(16); } return o;
+  }
+  // ---- the verified partition core (ported from ledger_core.js, 18/18) ----
+  function verifyEvidence(ev){
+    if(ev.kind!=='hash' || typeof ev.payload!=='string' || typeof ev.anchor!=='string' || !/^[0-9a-f]{64}$/.test(ev.anchor)){
+      return {id:ev.id, status:'UNVERIFIABLE', recomputed:null, ok:false};
+    }
+    var got=sha256(ev.payload);
+    return {id:ev.id, status: got===ev.anchor?'VERIFIED':'BROKEN', recomputed:got, ok: got===ev.anchor};
+  }
+  function verifyClaim(claim){
+    var evR=claim.evidence.map(verifyEvidence), ver={};
+    for(var i=0;i<evR.length;i++) if(evR[i].ok) ver[evR[i].id]=true;
+    var backing={};
+    for(var e=0;e<claim.evidence.length;e++){ var row=claim.evidence[e]; if(!ver[row.id]) continue;
+      var b=Array.isArray(row.backs)?row.backs:[]; for(var k=0;k<b.length;k++){ (backing[b[k]]=backing[b[k]]||[]).push(row.id); } }
+    var inR=claim.intents.map(function(it){ var bk=backing[it.id]||[]; return {id:it.id,status:bk.length>0?'BACKED':'UNBACKED',backers:bk}; });
+    var anyBroken=evR.some(function(r){return r.status==='BROKEN';});
+    var anyUnbacked=inR.some(function(r){return r.status==='UNBACKED';});
+    var verdict=anyBroken?'INVALID':(anyUnbacked?'INCOMPLETE':'VALID');
+    var canon=JSON.stringify({v:verdict,e:evR.map(function(r){return [r.id,r.status,r.recomputed];}),i:inR.map(function(r){return [r.id,r.status,r.backers];})});
+    return {verdict:verdict, evidence:evR, intents:inR, digest:sha256(canon)};
+  }
+
+  // ---- state ----
+  var P1='2026 audit: the register enumerates 4,032 lives (file lives.json).';
+  var state, nextI, nextE;
+  function seedState(){
+    state={ intents:[{id:'i1',text:'The register is complete at 4,032 lives.'},
+                     {id:'i2',text:'Every life carries a birth certificate.'}],
+            evidence:[{id:'e1',kind:'hash',payload:P1,anchor:sha256(P1),backs:['i1']},
+                      {id:'e2',kind:'hash',payload:'cert-index of 4032 certificates',anchor:sha256('cert-index of 4032 certificates'),backs:['i2']}] };
+    nextI=3; nextE=3;
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function render(){
+    var res=verifyClaim(state);
+    var stI={}, stE={}; res.intents.forEach(function(r){stI[r.id]=r;}); res.evidence.forEach(function(r){stE[r.id]=r;});
+    // intents
+    var ih='';
+    state.intents.forEach(function(it){ var r=stI[it.id];
+      ih+='<div class="row" data-i="'+it.id+'"><span class="rid">'+it.id+' · intent</span>'
+        +'<textarea rows="2" data-edit="itext" data-id="'+it.id+'">'+esc(it.text)+'</textarea>'
+        +'<span class="st '+r.status+'">'+r.status+'</span>'
+        +'<div class="backers">'+(r.backers.length?'backed by <b>'+r.backers.join(', ')+'</b> ✓':'no verifiable evidence')+'</div></div>';
+    });
+    document.getElementById('intents').innerHTML=ih;
+    document.getElementById('icount').textContent=state.intents.length+' rows';
+    // evidence
+    var eh='';
+    state.evidence.forEach(function(ev){ var r=stE[ev.id];
+      var recomp = r.recomputed===null
+        ? '<span class="no">nothing to recompute — no valid anchor (an assertion, not evidence)</span>'
+        : 'sha256(payload) = <b>'+r.recomputed.slice(0,20)+'…</b>'+(r.status==='VERIFIED'?' = anchor ✓':' <span class="no">≠ anchor ✕</span>');
+      var backsHtml=state.intents.map(function(it){
+        var on=(ev.backs||[]).indexOf(it.id)>=0;
+        return '<label><input type="checkbox" data-back="'+ev.id+'" data-int="'+it.id+'"'+(on?' checked':'')+'> '+it.id+'</label>';
+      }).join('');
+      eh+='<div class="row" data-e="'+ev.id+'"><span class="rid">'+ev.id+' · '+(ev.kind==='hash'?'evidence':esc(ev.kind))+'</span>'
+        +'<textarea rows="2" data-edit="epay" data-id="'+ev.id+'" placeholder="(no payload)">'+esc(ev.payload)+'</textarea>'
+        +'<input class="anchor" data-edit="eanc" data-id="'+ev.id+'" value="'+esc(ev.anchor==null?'':ev.anchor)+'" placeholder="(no anchor — cannot be recomputed)" spellcheck="false">'
+        +'<div class="recomp">'+recomp+'</div>'
+        +'<span class="st '+r.status+'">'+r.status+'</span>'
+        +'<div class="backs">backs: '+backsHtml+'</div></div>';
+    });
+    document.getElementById('evidence').innerHTML=eh;
+    document.getElementById('ecount').textContent=state.evidence.length+' rows';
+    // verdict bar
+    var v=document.getElementById('verdict'); v.className='chip '+res.verdict; v.textContent=res.verdict;
+    var nb=res.intents.filter(function(r){return r.status==='UNBACKED';}).length;
+    var br=res.evidence.filter(function(r){return r.status==='BROKEN';}).length;
+    document.getElementById('counts').textContent=nb+' unbacked · '+br+' broken';
+    document.getElementById('digest').textContent='digest '+res.digest.slice(0,16)+'…';
+    wire();
+  }
+  function wire(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'),function(el){
+      el.oninput=function(){ var id=el.getAttribute('data-id'), kind=el.getAttribute('data-edit');
+        if(kind==='itext'){ find(state.intents,id).text=el.value; syncVerdictOnly(); }
+        else if(kind==='epay'){ find(state.evidence,id).payload=el.value; syncVerdictOnly(); }
+        else if(kind==='eanc'){ find(state.evidence,id).anchor=el.value; syncVerdictOnly(); }
+      };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-back]'),function(cb){
+      cb.onchange=function(){ var ev=find(state.evidence,cb.getAttribute('data-back')); var intId=cb.getAttribute('data-int');
+        ev.backs=ev.backs||[]; var ix=ev.backs.indexOf(intId);
+        if(cb.checked && ix<0) ev.backs.push(intId); if(!cb.checked && ix>=0) ev.backs.splice(ix,1); render(); };
+    });
+  }
+  function find(arr,id){ for(var i=0;i<arr.length;i++) if(arr[i].id===id) return arr[i]; return null; }
+  // lightweight update that doesn't blow away focus while typing in a field
+  function syncVerdictOnly(){
+    var res=verifyClaim(state);
+    var v=document.getElementById('verdict'); v.className='chip '+res.verdict; v.textContent=res.verdict;
+    var nb=res.intents.filter(function(r){return r.status==='UNBACKED';}).length;
+    var br=res.evidence.filter(function(r){return r.status==='BROKEN';}).length;
+    document.getElementById('counts').textContent=nb+' unbacked · '+br+' broken';
+    document.getElementById('digest').textContent='digest '+res.digest.slice(0,16)+'…';
+    // update this row's status chips + recomputed line via full status refresh (cheap)
+    var stE={}; res.evidence.forEach(function(r){stE[r.id]=r;});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-e]'),function(rowEl){
+      var r=stE[rowEl.getAttribute('data-e')]; if(!r) return;
+      var chip=rowEl.querySelector('.st'); chip.className='st '+r.status; chip.textContent=r.status;
+      var rc=rowEl.querySelector('.recomp');
+      rc.innerHTML = r.recomputed===null ? '<span class="no">nothing to recompute — no valid anchor (an assertion, not evidence)</span>'
+        : 'sha256(payload) = <b>'+r.recomputed.slice(0,20)+'…</b>'+(r.status==='VERIFIED'?' = anchor ✓':' <span class="no">≠ anchor ✕</span>');
+    });
+    var stI={}; res.intents.forEach(function(r){stI[r.id]=r;});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i]'),function(rowEl){
+      var r=stI[rowEl.getAttribute('data-i')]; if(!r) return;
+      var chip=rowEl.querySelector('.st'); chip.className='st '+r.status; chip.textContent=r.status;
+      rowEl.querySelector('.backers').innerHTML=(r.backers.length?'backed by <b>'+r.backers.join(', ')+'</b> ✓':'no verifiable evidence');
+    });
+  }
+
+  // ---- controls ----
+  function uniqEid(){ var id; do{ id='e'+(nextE++); }while(find(state.evidence,id)); return id; }  // unique-id guard (E4)
+  document.getElementById('sealin').oninput=function(){ document.getElementById('sealout').textContent=sha256(this.value); };
+  document.getElementById('addev').onclick=function(){ var pay=document.getElementById('sealin').value;
+    state.evidence.push({id:uniqEid(),kind:'hash',payload:pay,anchor:sha256(pay),backs:[state.intents[0]?state.intents[0].id:'i1']}); render(); };
+  document.getElementById('addintent').onclick=function(){ state.intents.push({id:'i'+(nextI++),text:'a new assertion'}); render(); };
+  document.getElementById('smuggle').onclick=function(){
+    // add a fresh assertion, then try to back it ONLY by smuggling its own text into
+    // the evidence column — the row arrives with no anchor, so it proves nothing.
+    var claimText='This holds because I say so.';
+    var it={id:'i'+(nextI++),text:claimText};
+    state.intents.push(it);
+    state.evidence.push({id:uniqEid(),kind:'assertion',payload:claimText,anchor:null,backs:[it.id]});
+    render();
+    document.getElementById('verdict').scrollIntoView({behavior:'smooth',block:'center'});
+  };
+  document.getElementById('tamperp').onclick=function(){
+    var ev=null; for(var i=0;i<state.evidence.length;i++){ var r=verifyEvidence(state.evidence[i]); if(r.status==='VERIFIED'){ ev=state.evidence[i]; break; } }
+    if(ev){ ev.payload=ev.payload+' [altered]'; render(); }
+  };
+  document.getElementById('tampera').onclick=function(){
+    var ev=null; for(var i=0;i<state.evidence.length;i++){ var r=verifyEvidence(state.evidence[i]); if(r.status==='VERIFIED'){ ev=state.evidence[i]; break; } }
+    if(ev){ var c=ev.anchor[63]==='0'?'1':'0'; ev.anchor=ev.anchor.slice(0,63)+c; render(); }
+  };
+  document.getElementById('reverify').onclick=function(){ render(); };
+  document.getElementById('reset').onclick=function(){ seedState(); render(); };
+
+  seedState();
+  document.getElementById('sealout').textContent=sha256(document.getElementById('sealin').value);
+  render();   // synchronous paint at load (no rAF dependency)
+})();
+</script>
+</body>
+</html>
