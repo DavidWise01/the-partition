@@ -4,6 +4,6 @@ slug  : the-partition
 seal  : c547f4c8498baec02efbfed0f3b55387b6c7f22d1f8ec8681523189673f7901c
 prev  : e5df2ac58000e3c23429a349faf71e35d3b3c3f6189004def29f24c7685dd574
 link  : 95f9c7d331d87ee0d1685cfd5d244157574a3b0434cac2c44adcdd095f4f790c
-head  : 3447d3a0533aaf1e29a8bdc67a9774884fb3ae9dbc8a17064b7a008ca3c4ec90
+head  : 13f9ace173ef2e60af38912ba329b4afcb5a38b84a0e4495e8d30327f8c99cc2
 
 — the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
